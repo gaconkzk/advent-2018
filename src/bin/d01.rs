@@ -1,6 +1,6 @@
 use std::fs::{self};
 use std::io::{Result};
-use std::vec::Vec;
+use std::collections::BTreeSet;
 
 fn main() -> Result<()> {
 //   // read input file
@@ -25,8 +25,8 @@ fn p1(input: &str) -> Result<()> {
 
 fn p2(input: &str) -> Result<()> {
   let mut e = 0;
-  let mut vec = Vec::new();
-  vec.push(0);
+  let mut btree_set = BTreeSet::new();
+  btree_set.insert(0);
 
   let mut fr2:i32 = -1;
   let mut i = 0;
@@ -34,11 +34,11 @@ fn p2(input: &str) -> Result<()> {
     for line in input.lines() {
       let change:i32 = line.parse().unwrap();
       e += change;
-      if vec.contains(&e) {
+      if btree_set.contains(&e) {
         fr2 = e;
         break;
       }
-      vec.push(e);
+      btree_set.insert(e);
     }
     println!("i: {}, e: {}", i, e);
     i = i+1;
