@@ -22,12 +22,12 @@ fn compare(a: &str, b: &str) -> bool {
     return false
   }
 
-  let tsize = a.len();
+  let t_size = a.len();
   let a_bytes = a.as_bytes();
   let b_bytes = b.as_bytes();
   let mut t: i32 = 0;
 
-  for i in 0..tsize-1 {
+  for i in 0..t_size {
     if a_bytes[i] != b_bytes[i] {
       if t > 0 {
         return false
@@ -44,8 +44,8 @@ fn common(a: &str, b: &str) -> String {
   let b_bytes = b.as_bytes();
 
   let mut result = String::new();
-  let tsize = a.len();
-  for i in 0..tsize {
+  let t_size = a.len();
+  for i in 0..t_size {
     if a_bytes[i] != b_bytes[i] {
       continue;
     }
@@ -60,8 +60,8 @@ fn p2(input: &str) -> Result<()> {
   for i in 0..mchar.len() {
     for j in i+1..mchar.len() {
       if compare(mchar[i].as_str(), mchar[j].as_str()) {
-        println!("{} vs {}", mchar[i].as_str(), mchar[j].as_str());
-        println!("{}", common(mchar[i].as_str(), &mchar[j].as_str()));
+        println!("p2: {} vs {}", mchar[i].as_str(), mchar[j].as_str());
+        println!("p2: {}", common(mchar[i].as_str(), &mchar[j].as_str()));
       }
     }
   }

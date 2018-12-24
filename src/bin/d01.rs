@@ -40,6 +40,7 @@ fn p2(input: &str) -> Result<()> {
       }
       vec.push(e);
     }
+    println!("i: {}, e: {}", i, e);
     i = i+1;
   }
   
