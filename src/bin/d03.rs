@@ -63,11 +63,9 @@ fn p1(input: &str) -> Result<()> {
 
   let a:Vec<u16> = fab.iter()
       .flat_map(|arr| arr.iter())
-      .cloned()
-      .collect();
-  let a:Vec<u16> = a.iter()
       .map(|a| *a)
-      .filter(|f| *f > 1).collect();
+      .filter(|f| *f > 1)
+      .collect();
 
   println!("p1: {:?}", a.len());
 
