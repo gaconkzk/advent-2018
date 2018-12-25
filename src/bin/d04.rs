@@ -9,6 +9,8 @@ fn main() -> IoResult<()> {
   let input = fs::read_to_string("input/d04.txt")?;
   p1(&input)?;
 
+  p2(&input)?;
+
   Ok(())
 }
 
@@ -32,6 +34,41 @@ impl TimedData {
       minute,
       action,
     }
+  }
+}
+
+trait TimedMap {
+  fn make_map(&self) -> HashMap<usize, GuardHistory>;
+}
+
+impl TimedMap for Vec<TimedData> {
+  fn make_map(&self) -> HashMap<usize, GuardHistory> {
+    let mut idx = 0;
+    let mut guard_data: HashMap<usize, GuardHistory> = HashMap::new();
+    let mut curr_id = 0;
+    let mut curr_sleep_time: Option<u32> = None;
+    while idx < self.len() {
+      match self[idx].action {
+        GuardAction::Shift(id) => {
+          curr_id = id;
+          guard_data.entry(curr_id).or_insert(GuardHistory::new());
+        },
+        GuardAction::Sleep(minute) => {
+          curr_sleep_time = Some(minute);
+        },
+        GuardAction::Wakeup(minute) => {
+          let st_arr = &mut guard_data.get_mut(&curr_id).unwrap().sleep_time;
+          for i in curr_sleep_time.unwrap()..minute {
+            st_arr[i as usize] += 1;
+          }
+          guard_data.get_mut(&curr_id).unwrap().total_sleep_time += minute - curr_sleep_time.unwrap();
+        },
+        _ => println!("What did he doooo! IDK!!!"),
+      }
+      idx+=1;
+    }
+
+    guard_data
   }
 }
 
@@ -90,6 +127,18 @@ impl PartialEq for TimedData {
   }
 }
 
+fn max(k: &usize, sl: [u8; 60]) -> (usize, (usize, u8)) {
+  let mut max = 0;
+  let mut item = (0, 0);
+  for i in 0..60 {
+    if sl[i] >= max {
+      max = sl[i];
+      item = (i, sl[i]);
+    }
+  }
+  (*k, item)
+}
+
 fn p1(input: &str) -> IoResult<()> {
   let mut timed_data:Vec<TimedData> = input.lines()
       .map(|l| TimedData::new(l))
@@ -97,53 +146,42 @@ fn p1(input: &str) -> IoResult<()> {
 
   timed_data.sort();
 
-  let mut idx = 0;
-  let mut guard_data: HashMap<usize, GuardHistory> = HashMap::new();
-  let mut curr_id = 0;
-  let mut curr_sleep_time: Option<u32> = None;
-  while idx < timed_data.len() {
-    match timed_data[idx].action {
-      GuardAction::Shift(id) => {
-        curr_id = id;
-        guard_data.entry(curr_id).or_insert(GuardHistory::new());
-      },
-      GuardAction::Sleep(minute) => {
-        curr_sleep_time = Some(minute);
-      },
-      GuardAction::Wakeup(minute) => {
-        let st_arr = &mut guard_data.get_mut(&curr_id).unwrap().sleep_time;
-        for i in curr_sleep_time.unwrap()..minute {
-          st_arr[i as usize] += 1;
-        }
-        guard_data.get_mut(&curr_id).unwrap().total_sleep_time += minute - curr_sleep_time.unwrap();
-      },
-      _ => println!("What did he doooo! IDK!!!"),
-    }
-    idx+=1;
-  }
+  let guard_data = timed_data.make_map();
 
   // find the one that sleep more than any others
   let sleepy_guard = guard_data.iter()
-      .max_by(|&(_k, v), &(_k2, v2)| v.total_sleep_time.cmp(&v2.total_sleep_time));
+      .max_by(|&(_k1, v1), &(_k2, v2)|
+          v1.total_sleep_time.cmp(&v2.total_sleep_time));
 
   // which minute that he usually fall asleep
   let mmst = sleepy_guard
       .map(|(k, v)| (k, v.sleep_time))
-      .map(|(k, sl)| {
-        let mut max = 0;
-        let mut item = (0, 0);
-        for i in 0..60 {
-          if sl[i] >= max {
-            max = sl[i];
-            item = (i, sl[i]);
-          }
-        }
-        (k, item)
-      })
+      .map(|(k, sl)| max(k, sl))
       .map(|(k, v)| (k, v.0))
       .unwrap();
 
   println!("p1: (id, sleepy minute) {:?} - result: {:?}", mmst, mmst.0*(mmst.1 as usize));
+
+  Ok(())
+}
+
+fn p2(input: &str) -> IoResult<()> {
+  let mut timed_data:Vec<TimedData> = input.lines()
+      .map(|l| TimedData::new(l))
+      .collect();
+
+  timed_data.sort();
+
+  let guard_data = timed_data.make_map();
+
+  let mmst = guard_data.iter()
+      .map(|(k, g)| (k, g.sleep_time))
+      .map(|(k, sl)| max(k, sl))
+      .max_by(|(_k1, v1), (_k2, v2)| v1.1.cmp(&v2.1))
+      .map(|(k, v)| (k, v.0))
+      .unwrap();
+
+  println!("p2: (id, sleepy minute) {:?} - result: {:?}", mmst, mmst.0*(mmst.1 as usize));
 
   Ok(())
 }
