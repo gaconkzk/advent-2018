@@ -14,7 +14,7 @@ fn main() -> IoResult<()> {
 
 #[derive(Debug, Eq)]
 struct TimedData {
-  ftime: NaiveDateTime,
+  f_time: NaiveDateTime,
   minute: u32,
   action: GuardAction,
 }
@@ -24,11 +24,11 @@ impl TimedData {
     let parts:Vec<&str> = line[1..].split("] ")
         .collect();
 
-    let ftime = NaiveDateTime::parse_from_str(parts[0], "%Y-%m-%d %H:%M").unwrap();
-    let minute = ftime.minute();
+    let f_time = NaiveDateTime::parse_from_str(parts[0], "%Y-%m-%d %H:%M").unwrap();
+    let minute = f_time.minute();
     let action = GuardAction::from(parts[1], &minute);
     TimedData {
-      ftime,
+      f_time,
       minute,
       action,
     }
@@ -74,19 +74,19 @@ impl GuardHistory {
 
 impl PartialOrd for TimedData {
   fn partial_cmp(&self, other: &TimedData) -> Option<Ordering> {
-    self.ftime.partial_cmp(&other.ftime)
+    self.f_time.partial_cmp(&other.f_time)
   }
 }
 
 impl Ord for TimedData {
   fn cmp(&self, other: &TimedData) -> Ordering {
-    self.ftime.cmp(&other.ftime)
+    self.f_time.cmp(&other.f_time)
   }
 }
 
 impl PartialEq for TimedData {
   fn eq(&self, other: &TimedData) -> bool {
-    self.ftime == other.ftime
+    self.f_time == other.f_time
   }
 }
 
@@ -122,7 +122,7 @@ fn p1(input: &str) -> IoResult<()> {
     idx+=1;
   }
 
-  // find the one that sleep more that any others
+  // find the one that sleep more than any others
   let sleepy_guard = guard_data.iter()
       .max_by(|&(_k, v), &(_k2, v2)| v.total_sleep_time.cmp(&v2.total_sleep_time));
 
